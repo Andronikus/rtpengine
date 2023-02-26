@@ -79,7 +79,7 @@ Check our general documentation here:
 * [Read-the-Docs](https://rtpengine.readthedocs.io/en/latest/)
 
 Documentation stored in the GitHub (for usage):
-* [Compiling and Installing](compiling_and_installing.md)
+* [Compiling and Installing](docs/compiling_and_installing.md)
 * [Usage](usage.md)
 * [Transcoding](transcoding.md)
 * [Call recording](call_recording.md)
