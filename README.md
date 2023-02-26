@@ -80,19 +80,19 @@ Check our general documentation here:
 
 Documentation stored in the GitHub (for usage):
 * [Compiling and Installing](docs/compiling_and_installing.md)
-* [Usage](usage.md)
-* [Transcoding](transcoding.md)
-* [Call recording](call_recording.md)
-* [The NG Control Protocol](ng_control_protocol.md)
-* [The TCP-NG Control Protocol](tcpng_control_protocol.md)
-* [HTTP/WebSocket support](http_websocket_support.md)
-* [Janus Interface and Replacement Functionality](janus_interface_and_replacement.md)
+* [Usage](docs/usage.md)
+* [Transcoding](docs/transcoding.md)
+* [Call recording](docs/call_recording.md)
+* [The NG Control Protocol](docs/ng_control_protocol.md)
+* [The TCP-NG Control Protocol](docs/tcpng_control_protocol.md)
+* [HTTP/WebSocket support](docs/http_websocket_support.md)
+* [Janus Interface and Replacement Functionality](docs/janus_interface_and_replacement.md)
 
 Documentation stored in the GitHub (for development):
-* [Architecture Overview](architecture.md)
-* [Unit-tests](tests.md)
-* [Troubleshooting Overview](troubleshooting.md)
-* [Glossary](glossary.md)
+* [Architecture Overview](docs/architecture.md)
+* [Unit-tests](docs/tests.md)
+* [Troubleshooting Overview](docs/troubleshooting.md)
+* [Glossary](docs/glossary.md)
 
 # Contribution
 
