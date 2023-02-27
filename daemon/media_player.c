@@ -59,7 +59,7 @@ struct media_player_cache_packet {
 static mutex_t media_player_cache_lock;
 static GHashTable *media_player_cache; // keys and values only ever freed at shutdown
 
-static void media_player_read_packet(struct media_player *mp);
+static bool media_player_read_packet(struct media_player *mp);
 #endif
 
 static struct timerthread send_timer_thread;
@@ -357,7 +357,7 @@ static void media_player_coder_add_packet(struct media_player_coder *c,
 }
 
 
-static void media_player_read_decoded_packet(struct media_player *mp) {
+static bool media_player_read_decoded_packet(struct media_player *mp) {
 	struct media_player_cache_entry *entry = mp->cache_entry;
 
 	unsigned int read_idx = mp->cache_read_idx;
@@ -390,7 +390,7 @@ retry:;
 		if (mp->repeat <= 1) {
 			ilog(LOG_DEBUG, "EOF reading from media buffer (%s), stopping playback",
 					entry->info_str);
-			return;
+			return true;
 		}
 
 		ilog(LOG_DEBUG, "EOF reading from media buffer (%s) but will repeat %li time",
@@ -441,6 +441,8 @@ retry:;
 	// schedule our next run
 	timeval_add_usec(&mp->next_run, us_dur);
 	timerthread_obj_schedule_abs(&mp->tt_obj, &mp->next_run);
+
+	return false;
 }
 
 static void media_player_cached_reader_start(struct media_player *mp, const struct rtp_payload_type *dst_pt,
@@ -814,9 +816,9 @@ void media_player_add_packet(struct media_player *mp, char *buf, size_t len,
 
 
 // appropriate lock must be held
-static void media_player_read_packet(struct media_player *mp) {
+static bool media_player_read_packet(struct media_player *mp) {
 	if (!mp->coder.fmtctx)
-		return;
+		return true;
 
 	int ret = av_read_frame(mp->coder.fmtctx, mp->coder.pkt);
 	if (ret < 0) {
@@ -833,14 +835,14 @@ static void media_player_read_packet(struct media_player *mp) {
 				ret = av_read_frame(mp->coder.fmtctx, mp->coder.pkt);
 			} else {
 				ilog(LOG_DEBUG, "EOF reading from media stream");
-				return;
+				return true;
 
 			}
 
 		}
 		if (ret < 0 && ret != AVERROR_EOF) { 
 			ilog(LOG_ERR, "Error while reading from media stream");
-			return;
+			return true;
 		}
 
 	}
@@ -850,6 +852,8 @@ static void media_player_read_packet(struct media_player *mp) {
 	media_player_coder_add_packet(&mp->coder, (void *) media_player_add_packet, mp);
 
 	av_packet_unref(mp->coder.pkt);
+
+	return false;
 }
 
 
@@ -1178,10 +1182,21 @@ static void media_player_run(void *ptr) {
 	rwlock_lock_r(&call->master_lock);
 	mutex_lock(&mp->lock);
 
-	mp->run_func(mp);
+	bool finished = mp->run_func(mp);
 
 	mutex_unlock(&mp->lock);
 	rwlock_unlock_r(&call->master_lock);
+
+	if (finished) {
+		rwlock_lock_w(&call->master_lock);
+
+		mp->next_run.tv_sec = 0;
+
+		codec_update_all_source_handlers(mp->media->monologue, NULL);
+		update_init_subscribers(mp->media->monologue, OP_OTHER);
+
+		rwlock_unlock_w(&call->master_lock);
+	}
 
 	log_info_pop();
 }
