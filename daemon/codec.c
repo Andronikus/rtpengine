@@ -1339,7 +1339,7 @@ transcode:
 		if (use_audio_player) {
 			// when using the audio player, everything must decode to the same
 			// format that is appropriate for the audio player
-			if (sink_pt != pref_dest_codec) {
+			if (sink_pt != pref_dest_codec && pref_dest_codec) {
 				ilogs(codec, LOG_DEBUG, "Switching sink codec for " STR_FORMAT " to "
 						STR_FORMAT " (%i) due to usage of audio player",
 				STR_FMT(&pt->encoding_with_params),
