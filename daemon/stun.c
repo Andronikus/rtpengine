@@ -393,7 +393,7 @@ static void stun_error_len(struct stream_fd *sfd, const endpoint_t *sin,
 	if (attr_cont)
 		output_add_data_wr(&mh, &aa, add_attr, attr_cont, attr_len);
 
-	integrity(&mh, &mi, &sfd->stream->media->ice_agent->pwd[0]);
+	integrity(&mh, &mi, &sfd->stream->media->ice_agent->pwd[1]);
 	fingerprint(&mh, &fp);
 
 	output_finish_src(&mh);
